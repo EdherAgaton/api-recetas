@@ -50,19 +50,37 @@ const removeReceta = async (req, res) => {
 // consultar por ingrediente
 
 const recomendacionReceta = async (req, res) => {
-
-    let { ingredientes } = req.body; 
-    try{
-        const recetas = await recetaModel.find({
-            "ingredients.name": { $in: ingredientes }
-        })
-        res.json({success : true, data : recetas})
-    }catch(error){
+    let { ingredientes } = req.body;
+    try {
+        const recetas = await recetaModel.aggregate([
+            {
+                $match: {
+                    "ingredients.name": { $in: ingredientes }
+                }
+            },
+            {
+                $addFields: {
+                    matchCount: {
+                        $size: {
+                            $filter: {
+                                input: "$ingredients",
+                                as: "ingredient",
+                                cond: { $in: ["$$ingredient.name", ingredientes] }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $sort: { matchCount: -1 } // Ordenar por la cantidad de coincidencias en orden descendente
+            }
+        ]);
+        res.json({ success: true, data: recetas });
+    } catch (error) {
         console.log(error);
-        res.status(500).json({success : false, message : "Error al consultar recetas por ingredientes"})
-
+        res.status(500).json({ success: false, message: "Error al consultar recetas por ingredientes" });
     }
-}
+};
 
 
 export  { addReceta, listReceta, removeReceta ,  recomendacionReceta}
