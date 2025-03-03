@@ -1,5 +1,5 @@
 import recetaModel from "../models/recetaModel.js"
-import fs from "fs"
+
 
 //agregar una receta 
 const addReceta = async (req, res) => {
