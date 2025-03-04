@@ -50,7 +50,7 @@ const removeReceta = async (req, res) => {
 // consultar por ingrediente
 
 const recomendacionReceta = async (req, res) => {
-    let { ingredientes } = req.body;
+    let  ingredientes  = req.body.ingredients;
     try {
         const recetas = await recetaModel.aggregate([
             {
